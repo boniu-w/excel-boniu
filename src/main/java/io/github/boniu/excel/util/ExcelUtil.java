@@ -5,18 +5,13 @@ import io.github.boniu.util.MapUtil;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
@@ -25,9 +20,7 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
-import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -35,13 +28,13 @@ import java.util.*;
 /*************************************************************
  * @Package com.Gzs.demo.SpringSecurityDemo.Common1.Utils
  * @author wg
- * @description: 以后不要用了, 直接用 cn.afterturn.easypoi --01122023
+ * @description:
  * @date 2020/7/2 10:00
  * @version
  * @Copyright 使用本工具 要结合 我的 Excel 注解使用,
  *************************************************************/
 public class ExcelUtil {
-    private Logger logger = LoggerFactory.getLogger(ExcelUtil.class);
+    private final Logger logger = LoggerFactory.getLogger(ExcelUtil.class);
     private static Workbook workbook;
     private static Sheet sheet;
     private static Row row;
@@ -50,14 +43,18 @@ public class ExcelUtil {
         return workbook;
     }
 
+    public static void setWorkbook(Workbook workbook) {
+        ExcelUtil.workbook = workbook;
+    }
+
     /*************************************************************
      * 初始化workbook
      * @author: wg
      * @time: 2020/5/28 9:51
      *************************************************************/
-    public static Workbook initWorkbook(MultipartFile file) {
+    public static void initWorkbook(MultipartFile file) {
         if (file == null) {
-            return null;
+            return;
         }
         String filename = file.getOriginalFilename();
         String ext = filename.substring(filename.lastIndexOf("."));
@@ -65,27 +62,18 @@ public class ExcelUtil {
         try {
             InputStream is = file.getInputStream();
             switch (ext) {
-                case ".xls":
-                case ".et":
-                    workbook = new HSSFWorkbook(is);
-                    return workbook;
-                case ".xlsx":
-                    workbook = new XSSFWorkbook(is);
-                    return workbook;
-                default:
-                    workbook = null;
-                    return null;
+                case ".xls", ".et" -> workbook = new HSSFWorkbook(is);
+                case ".xlsx" -> workbook = new XSSFWorkbook(is);
+                default -> workbook = null;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return new HSSFWorkbook();
     }
 
-    public static Workbook initWorkbook(File file) throws IOException {
+    public static void initWorkbook(File file) throws IOException {
         if (file == null) {
-            return null;
+            return;
         }
         String filename = file.getName();
         String ext = filename.substring(filename.lastIndexOf("."));
@@ -93,24 +81,13 @@ public class ExcelUtil {
         try {
             InputStream is = new FileInputStream(file);
             switch (ext) {
-                case ".xls", ".et" -> {
-                    workbook = new HSSFWorkbook(is);
-                    return workbook;
-                }
-                case ".xlsx" -> {
-                    workbook = new XSSFWorkbook(is);
-                    return workbook;
-                }
-                default -> {
-                    workbook = null;
-                    return null;
-                }
+                case ".xls", ".et" -> workbook = new HSSFWorkbook(is);
+                case ".xlsx" -> workbook = new XSSFWorkbook(is);
+                default -> workbook = null;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return workbook;
     }
 
     /***************************************************
@@ -144,6 +121,11 @@ public class ExcelUtil {
             }
         }
         return fileVector;
+    }
+
+    public static <T> String[] readExcelTitle(MultipartFile multipartFile, @Nullable ExcelParams excelParams, Class<T> tClass) throws NullPointerException {
+        initWorkbook(multipartFile);
+        return readExcelTitle(excelParams, tClass);
     }
 
     /****************************************************************
@@ -519,7 +501,8 @@ public class ExcelUtil {
 
         if (uploadFiles.size() == 1) {
             MultipartFile multipartFile = uploadFiles.get(0);
-            Workbook workbook = ExcelUtil.initWorkbook(multipartFile);
+            initWorkbook(multipartFile);
+            Workbook workbook = getWorkbook();
             Map<String, Map<Integer, Map<Integer, Cell>>> workbookMap = new HashMap<>();
             for (Sheet sheet : workbook) {
                 Map<Integer, Map<Integer, Cell>> map = new HashMap<>();
@@ -570,12 +553,12 @@ public class ExcelUtil {
     }
 
     public static <T> List<T> getData(File file, ExcelParams excelParams, Class<T> tClass) throws Exception {
-        Workbook workbook = initWorkbook(file);
+        initWorkbook(file);
         return getData(workbook, excelParams, tClass);
     }
 
     public static <T> List<T> getData(MultipartFile file, ExcelParams excelParams, Class<T> tClass) throws Exception {
-        Workbook workbook = initWorkbook(file);
+        initWorkbook(file);
         return getData(workbook, excelParams, tClass);
     }
 
