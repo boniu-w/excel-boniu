@@ -16,11 +16,45 @@ public class DemoExcelDto {
     @ExcelPropertyCheck(required = true, checkFormat = true, type = ExcelPropertyType.LOCAL_DATE)
     private LocalDate importTime;
 
-    @ExcelProperty(value = "序号", order = 4)
+    @ExcelProperty(value = "序号")
+    @ExcelPropertyCheck(required = true)
     private String xuHao;
 
-    @ExcelProperty(value = "备注", order = 4)
+    @ExcelProperty(value = "所属海外资产")
+    private String assetName;
+
+    @ExcelProperty(value = "备注")
     private String remark;
+
+    @ExcelProperty(value = "本月事件发生数量")
+    private Integer numberCurrentMonth;
+
+    @ExcelProperty(value = "上月事件发生数量")
+    private Integer numberLastMonth;
+
+    public Integer getNumberLastMonth() {
+        return numberLastMonth;
+    }
+
+    public void setNumberLastMonth(Integer numberLastMonth) {
+        this.numberLastMonth = numberLastMonth;
+    }
+
+    public Integer getNumberCurrentMonth() {
+        return numberCurrentMonth;
+    }
+
+    public void setNumberCurrentMonth(Integer numberCurrentMonth) {
+        this.numberCurrentMonth = numberCurrentMonth;
+    }
+
+    public String getAssetName() {
+        return assetName;
+    }
+
+    public void setAssetName(String assetName) {
+        this.assetName = assetName;
+    }
 
     public Long getId() {
         return id;
@@ -60,7 +94,10 @@ public class DemoExcelDto {
                 "id=" + id +
                 ", importTime=" + importTime +
                 ", xuHao='" + xuHao + '\'' +
+                ", assetName='" + assetName + '\'' +
                 ", remark='" + remark + '\'' +
+                ", numberCurrentMonth=" + numberCurrentMonth +
+                ", numberLastMonth=" + numberLastMonth +
                 '}';
     }
 }

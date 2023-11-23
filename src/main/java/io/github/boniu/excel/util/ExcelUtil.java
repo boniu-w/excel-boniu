@@ -364,44 +364,44 @@ public class ExcelUtil {
     // apache poi 4.1.2
     public static Object getCellFormatValue(Cell cell) {
         Object cellvalue = "";
-        CellType cellType = cell.getCellType();
-
-        DecimalFormat decimalFormat = new DecimalFormat();
-
-        if (cellType != null) {
-            switch (cellType) {
-                case NUMERIC: {
-                    short s = cell.getCellStyle().getDataFormat();
-                    if (ExcelDateUtil.isCellDateFormatted(cell)) {
-                        Date date = cell.getDateCellValue();
-                        cellvalue = date;
-                    } else {
-                        cellvalue = decimalFormat.format(cell.getNumericCellValue()).replace(",", "");
+        if (cell != null) {
+            CellType cellType = cell.getCellType();
+            DecimalFormat decimalFormat = new DecimalFormat();
+            if (cellType != null) {
+                switch (cellType) {
+                    case NUMERIC: {
+                        short s = cell.getCellStyle().getDataFormat();
+                        if (ExcelDateUtil.isCellDateFormatted(cell)) {
+                            Date date = cell.getDateCellValue();
+                            cellvalue = date;
+                        } else {
+                            cellvalue = decimalFormat.format(cell.getNumericCellValue()).replace(",", "");
+                        }
+                        break;
                     }
-                    break;
+                    case STRING:
+                        cellvalue = cell.getRichStringCellValue().getString().replace(",", "");
+                        break;
+                    case BOOLEAN:
+                        cellvalue = String.valueOf(cell.getBooleanCellValue());
+                        break;
+                    case FORMULA:
+                        CellType cachedFormulaResultType = cell.getCachedFormulaResultType();
+                        cellvalue = handlerFormula(cell, cachedFormulaResultType);
+                        break;
+                    case ERROR:
+                        cellvalue = "非法字符";
+                        break;
+                    case BLANK:
+                        cellvalue = "";
+                        break;
+                    default:
+                        cellvalue = "未知类型";
+                        break;
                 }
-                case STRING:
-                    cellvalue = cell.getRichStringCellValue().getString().replace(",", "");
-                    break;
-                case BOOLEAN:
-                    cellvalue = String.valueOf(cell.getBooleanCellValue());
-                    break;
-                case FORMULA:
-                    CellType cachedFormulaResultType = cell.getCachedFormulaResultType();
-                    cellvalue = handlerFormula(cell, cachedFormulaResultType);
-                    break;
-                case ERROR:
-                    cellvalue = "非法字符";
-                    break;
-                case BLANK:
-                    cellvalue = "";
-                    break;
-                default:
-                    cellvalue = "未知类型";
-                    break;
+            } else {
+                cellvalue = "";
             }
-        } else {
-            cellvalue = "";
         }
         return cellvalue;
     }
